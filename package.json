@@ -1,0 +1,16 @@
+{
+  "name": "custom-slack-bot",
+  "version": "1.0.0",
+  "description": "jabiseo slack bot",
+  "main": "index.js",
+  "scripts": {
+    "build": "ncc build src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@actions/core": "^1.5.0",
+    "node-fetch": "^2.7.0"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,20 @@
+name: "custom slack"
+description: "custom slack"
+
+runs:
+  using: "node20"
+  main: "dist/index.js"
+
+inputs:
+  mode: #set mode (PR/REVIEW/ and other)
+    required: false
+
+  channelId: # can channelId and userId
+    required: true
+
+  statusColor: #
+    required: false
+    default: "#fcba03"
+
+  payload:
+    required: false
