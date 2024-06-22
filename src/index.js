@@ -2,6 +2,56 @@ const core = require("@actions/core");
 const fetch = require("node-fetch");
 const fs = require("fs");
 const CHAT_POST_MESSAGE_URL = "https://slack.com/api/chat.postMessage";
+function generateDeployPayload({ channel, color, text, commitMessage, author, sha, dockerImage }) {
+  return {
+    text,
+    channel,
+    attachments: [
+      {
+        color,
+        blocks: [
+          {
+            type: "header",
+            text: {
+              type: "plain_text",
+              text: text,
+              emoji: true,
+            },
+          },
+          {
+            type: "divider",
+          },
+          {
+            type: "section",
+            fields: [
+              {
+                type: "mrkdwn",
+                text: `*commit:*\n ${commitMessage} `,
+              },
+              {
+                type: "mrkdwn",
+                text: `*요청자:*\n ${author}`,
+              },
+            ],
+          },
+          {
+            type: "section",
+            fields: [
+              {
+                type: "mrkdwn",
+                text: `*sha:*\n ${sha}`,
+              },
+              {
+                type: "mrkdwn",
+                text: `*Dockerimage:*\n ${dockerImage}`,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+}
 
 function generatePRPayload({ text, channel, color, prTitle, author, repo, url }) {
   return {
@@ -79,11 +129,12 @@ async function sendSlackMessage(slackToken, payload) {
 }
 
 function selectPayload(mode) {
+  const { GITHUB_REPOSITORY, GITHUB_EVENT_PATH } = process.env;
+  if (!GITHUB_EVENT_PATH) {
+    throw new Error("GITHUB_EVENT_PATH is not defined");
+  }
+
   if (mode == "PR") {
-    const { GITHUB_REPOSITORY, GITHUB_EVENT_PATH } = process.env;
-    if (!GITHUB_EVENT_PATH) {
-      throw new Error("GITHUB_EVENT_PATH is not defined");
-    }
     const eventData = JSON.parse(fs.readFileSync(GITHUB_EVENT_PATH, "utf8"));
 
     const text = "GITHUB CI 결과";
@@ -109,6 +160,23 @@ function selectPayload(mode) {
       author,
       url,
       repo,
+    });
+
+    return genpayload;
+  } else if (mode == "DEPLOY") {
+    const text = "Deploy 결과";
+    const channel = core.getInput("channelId");
+    const color = core.getInput("statusColor");
+    const { SHA, COMMIT_MESSAGE, AUTHOR, DOCKER_IMAGE } = process.env;
+
+    const genpayload = generateDeployPayload({
+      text,
+      channel,
+      color,
+      commitMessage: COMMIT_MESSAGE,
+      author: AUTHOR,
+      sha: SHA,
+      dockerImage: DOCKER_IMAGE,
     });
     return genpayload;
   } else {
