@@ -30953,7 +30953,7 @@ function selectPayload(mode) {
 
     return genpayload;
   } else if (mode == "DEPLOY") {
-    const text = "Deploy 결과";
+    const text = core.getInput("text");
     const channel = core.getInput("channelId");
     const color = core.getInput("statusColor");
     const { SHA, COMMIT_MESSAGE, AUTHOR, DOCKER_IMAGE } = process.env;
