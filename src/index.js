@@ -204,7 +204,7 @@ async function run() {
 
     const response = await sendSlackMessage(SLACK_TOKEN, selectedPayload);
     if (response.ok == false) {
-      throw new Error("send to message fail..!");
+      throw new Error(JSON.stringify(response));
     }
 
     core.setOutput("ts", response.ts); // ts 셋팅, 나중에 이걸로 인터렉션 가능
